@@ -1,0 +1,44 @@
+# ECS Parrot Serverless Configuration
+
+service: ecs-parrot
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+
+
+provider:
+  name: aws
+  runtime: python2.7
+
+  # Stage & Region can be overriden at CLI.
+  stage: ${file(serverless.env.yml):mysettings.stage}
+  region: ${file(serverless.env.yml):mysettings.region}
+
+  # Set environentals on the Lambda:
+  environment:
+    SLACK_WEBHOOKURL: ${file(serverless.env.yml):mysettings.slack.webhookurl}
+    SLACK_USERNAME: ${file(serverless.env.yml):mysettings.slack.username}
+    SLACK_CHANNEL: ${file(serverless.env.yml):mysettings.slack.channel}
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+# you can add packaging information here
+#package:
+#  include:
+#    - include-me.py
+#    - include-me-dir/**
+#  exclude:
+#    - exclude-me.py
+#    - exclude-me-dir/**
+
+# Define the application functions
+functions:
+
+  # Triggered by ECS CloudWatch events
+  parrot:
+    handler: handler.parrot
+    memorySize: 128 # MB
+    timeout: 15 # Seconds

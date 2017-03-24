@@ -1,0 +1,8 @@
+# Ignore serverless cache/generation directories
+.serverless
+
+# Ignore local site-specific settings
+serverless.env.yml
+
+# MacOS *glare*
+.DS_Store

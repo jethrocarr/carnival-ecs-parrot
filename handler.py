@@ -17,6 +17,7 @@ import re
 import boto3
 import os
 import sys
+from datetime import timedelta
 
 # Load the bundled libraries inside vendored/ directory
 here = os.path.dirname(os.path.realpath(__file__))
@@ -49,17 +50,31 @@ def parrot(event, context):
         elif (event['detail']['requestParameters']['status'] == "STOPPED"):
             message = ':skull: Stopped task'
 
+        # Get some fundamentals around the task.
         task_arn        = event['detail']['requestParameters']['task']
         task_uuid       = task_arn.rsplit('/', 1)[1]
         task_short_uuid = task_uuid.split('-', 1)[0]
         cluster_name    = event['detail']['requestParameters']['cluster']
         task_details    = describe_task(cluster_name, task_arn)
-        task_link       = 'https://console.aws.amazon.com/ecs/home?region=' + os.environ['AWS_DEFAULT_REGION'] +'#/clusters/'+ cluster_name +'/tasks/' + task_uuid
 
+        # Add a link to the task console
+        task_link       = 'https://console.aws.amazon.com/ecs/home?region=' + os.environ['AWS_DEFAULT_REGION'] +'#/clusters/'+ cluster_name +'/tasks/' + task_uuid
+        message += ' <'+ task_link +'|'+ task_short_uuid + '>'
+
+        # Add the most human friendly name possible
         if task_details:
-            message += ' <'+ task_link +'|'+ task_short_uuid + '> in ' + task_details['group']
+            message += ' in ' + task_details['group'].split(':', 1)[1]
         else:
-            message += ' <'+ task_link +'|'+ task_short_uuid + '> in ' + cluster_name
+            message +=' in ' + task_arn
+
+
+        # If the task has stopped, then we should add the uptime - helps identify
+        # flappy systems.
+        if event['detail']['requestParameters']['status'] == "STOPPED":
+            if task_details:
+                uptime_delta = task_details['stoppedAt'] - task_details['startedAt']
+                message += ' (Ran for '+ str(int(uptime_delta.total_seconds())/60) +' minutes)'
+
 
     else:
         # We haven't coded a handler for this event type.

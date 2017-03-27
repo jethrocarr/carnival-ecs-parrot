@@ -25,7 +25,10 @@ currently not configurable via the Serverless framework itself. To do this:
 1. `AWS Console -> CloudWatch Dashboard`
 2. `Events -> Rules`
 3. Click `Create rule`
-4. Select `ECS` as the event service. TODO: Confirm exact options
+4. Select `EC2 Container Service (ECS)` as the event service. Use
+   `AWS API Call via CloudTrail` and specific operations
+   `SubmitTaskStateChange`, `StartTask`, `StopTask`, `RunTask`,
+   `DeregisterContainerInstance` and `RegisterContainerInstance`.
 5. Click `Add target`
 6. Select the Lambda to validate against.
 7. Keep all other details.
@@ -44,6 +47,28 @@ dependencies as part of this repo, so you don't need to install them yourself
 unless you are developing and adding new requirements to the application.
 
      pip install -t vendored/ -r requirements.txt
+
+
+# API Events from ECS
+
+We see the following events when a container is replaced due to the task
+definition being updated, or if the container has been terminated.
+
+    SubmitContainerStateChange
+    SubmitTaskStateChange
+    SubmitTaskStateChange
+    SubmitContainerStateChange
+
+If a Task Definition or Service is adjusted, we also see:
+
+    UpdateService
+    RegisterTaskDefinition
+
+The Stop/Start/Run Task API calls only occur if those specific APIs are invoked
+by a human or tool.
+
+If an EC2 instance is rebooted, we may see a RegisterContainerInstance but
+without an associated DeregisterContainerInstance
 
 
 # Testing

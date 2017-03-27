@@ -20,6 +20,7 @@ provider:
     SLACK_WEBHOOKURL: ${file(serverless.env.yml):mysettings.slack.webhookurl}
     SLACK_USERNAME: ${file(serverless.env.yml):mysettings.slack.username}
     SLACK_CHANNEL: ${file(serverless.env.yml):mysettings.slack.channel}
+    SLACK_ICON_EMOJI: ${file(serverless.env.yml):mysettings.slack.icon_emoji}
 
 # you can define service wide environment variables here
 #  environment:

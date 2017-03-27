@@ -58,7 +58,7 @@ def parrot(event, context):
         task_details    = describe_task(cluster_name, task_arn)
 
         # Add a link to the task console
-        task_link       = 'https://console.aws.amazon.com/ecs/home?region=' + os.environ['AWS_DEFAULT_REGION'] +'#/clusters/'+ cluster_name +'/tasks/' + task_uuid
+        task_link = 'https://console.aws.amazon.com/ecs/home?region=' + os.environ['AWS_DEFAULT_REGION'] +'#/clusters/'+ cluster_name +'/tasks/' + task_uuid
         message += ' <'+ task_link +'|'+ task_short_uuid + '>'
 
         # Add the most human friendly name possible
@@ -86,7 +86,6 @@ def parrot(event, context):
 
                 for name, logurl in containers.iteritems():
                     message += '<'+ logurl +'|'+ name +'> '
-
 
     else:
         # We haven't coded a handler for this event type.
@@ -133,7 +132,6 @@ def describe_task(ecs_cluster_name, task_arn):
         print "Unexpected error obtaining task details"
         return False
     else:
-        print response # TODO: Debug remove me
         return response['tasks'][0]
 
 
@@ -149,9 +147,6 @@ def link_container_logs(task_definition_arn, task_uuid):
         containers = {}
 
         for container in response['taskDefinition']['containerDefinitions']:
-
-            print "Container debug:"
-            print json.dumps(container)
 
             if container['logConfiguration']['logDriver'] == 'awslogs':
                 # If the container us using AWS logs, we can assemble a dict of container names -> logs.

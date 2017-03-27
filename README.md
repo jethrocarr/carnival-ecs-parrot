@@ -9,8 +9,8 @@ the useful/interesting ones to Slack.
 A site-specific configuration file needs to be created. This contains all
 settings for the Lambda.
 
-  cp serverless.env.yml.example serverless.env.yml
-  # edit as appropriate.
+    cp serverless.env.yml.example serverless.env.yml
+    # edit as appropriate.
 
 To deploy or update the Lambda:
 

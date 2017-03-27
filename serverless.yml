@@ -15,6 +15,16 @@ provider:
   stage: ${file(serverless.env.yml):mysettings.stage}
   region: ${file(serverless.env.yml):mysettings.region}
 
+  iamRoleStatements:
+    # Allow description of ECS clusters
+    - Effect: "Allow"
+      Action:
+        - "ecs:ListClusters"
+        - "ecs:ListServices"
+        - "ecs:DescribeServices"
+        - "ecs:DescribeTasks"
+      Resource: "*"
+
   # Set environentals on the Lambda:
   environment:
     SLACK_WEBHOOKURL: ${file(serverless.env.yml):mysettings.slack.webhookurl}

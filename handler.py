@@ -32,27 +32,34 @@ def parrot(event, context):
     print json.dumps(event);
 
     message = ''
-    icon = ''
 
     if (event['detail']['eventName'] == 'StopTask'):
         # A task has been terminated via the ECS API either by a human on the
         # console or a utility/tool of some kind.
-        icon = ':skull:'
+        message = ':skull:'
         service_name = event['detail']['responseElements']['task']['group'].rsplit(':', 1)[1]
         reason = event['detail']['responseElements']['task']['stoppedReason']
-        message = icon + " "+ service_name +" stopped due to "+ reason
+        message += " "+ service_name +" stopped due to "+ reason
 
     elif (event['detail']['eventName'] == 'SubmitTaskStateChange'):
         # A container has changed state - typically RUNNING->STOPPED or
         # STOPPED->RUNNING
         if (event['detail']['requestParameters']['status'] == "RUNNING"):
-            icon = ':hatching_chick:'
+            message = ':hatching_chick: Launched task'
         elif (event['detail']['requestParameters']['status'] == "STOPPED"):
-            icon = ':skull:'
+            message = ':skull: Stopped task'
 
-        task_arn = event['detail']['requestParameters']['task']
+        task_arn        = event['detail']['requestParameters']['task']
+        task_uuid       = task_arn.rsplit('/', 1)[1]
+        task_short_uuid = task_uuid.split('-', 1)[0]
+        cluster_name    = event['detail']['requestParameters']['cluster']
+        task_details    = describe_task(cluster_name, task_arn)
+        task_link       = 'https://console.aws.amazon.com/ecs/home?region=' + os.environ['AWS_DEFAULT_REGION'] +'#/clusters/'+ cluster_name +'/tasks/' + task_uuid
 
-        message = icon + task_arn
+        if task_details:
+            message += ' <'+ task_link +'|'+ task_short_uuid + '> in ' + task_details['group']
+        else:
+            message += ' <'+ task_link +'|'+ task_short_uuid + '> in ' + cluster_name
 
     else:
         # We haven't coded a handler for this event type.
@@ -84,3 +91,20 @@ def slackmessage(text):
         print "Slack Message: "+ text
     else:
         print "Unexpected error logging to Slack. Return code: "+ str(myrequest.status_code)
+
+
+# Return the details of a specific task on a specific cluster
+def describe_task(ecs_cluster_name, task_arn):
+
+    client = boto3.client('ecs')
+    response = client.describe_tasks(
+        cluster=ecs_cluster_name,
+        tasks=[ task_arn ]
+    )
+
+    if response['failures']:
+        print "Unexpected error obtaining task details"
+        return False
+    else:
+        print response # TODO: Debug remove me
+        return response['tasks'][0]

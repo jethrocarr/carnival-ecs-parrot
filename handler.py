@@ -61,9 +61,13 @@ def parrot(event, context):
         task_link = 'https://console.aws.amazon.com/ecs/home?region=' + os.environ['AWS_DEFAULT_REGION'] +'#/clusters/'+ cluster_name +'/tasks/' + task_uuid
         message += ' <'+ task_link +'|'+ task_short_uuid + '>'
 
-        # Add the most human friendly name possible
+        # Add the most human friendly name possible for the service and hyper
+        # link it to the console.
         if task_details:
-            message += ' in ' + task_details['group'].split(':', 1)[1]
+            service_name = task_details['group'].split(':', 1)[1]
+            service_link = 'https://console.aws.amazon.com/ecs/home?region=' + os.environ['AWS_DEFAULT_REGION'] +'#/clusters/'+ cluster_name +'/services/'+ service_name +'/tasks'
+
+            message += ' in <'+ service_link +'|'+ service_name + '>'
         else:
             message +=' in ' + task_arn
 

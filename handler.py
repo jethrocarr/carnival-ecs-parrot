@@ -75,6 +75,18 @@ def parrot(event, context):
                 uptime_delta = task_details['stoppedAt'] - task_details['startedAt']
                 message += ' (Ran for '+ str(int(uptime_delta.total_seconds())/60) +' minutes)'
 
+        # Provide a link to the logs for each container inside the task for
+        # handy debugging and following. Particularly useful for stopped tasks
+        # but can also be useful for newly launched tasks
+        if task_details:
+            containers = link_container_logs(task_details['taskDefinitionArn'], task_uuid)
+
+            if containers:
+                message += '\nContainer logs: '
+
+                for name, logurl in containers.iteritems():
+                    message += '<'+ logurl +'|'+ name +'> '
+
 
     else:
         # We haven't coded a handler for this event type.
@@ -123,3 +135,38 @@ def describe_task(ecs_cluster_name, task_arn):
     else:
         print response # TODO: Debug remove me
         return response['tasks'][0]
+
+
+# Return a dict of containers and logs inside a given task.
+def link_container_logs(task_definition_arn, task_uuid):
+
+    client = boto3.client('ecs')
+    response = client.describe_task_definition(
+        taskDefinition=task_definition_arn
+    )
+
+    if response:
+        containers = {}
+
+        for container in response['taskDefinition']['containerDefinitions']:
+
+            print "Container debug:"
+            print json.dumps(container)
+
+            if container['logConfiguration']['logDriver'] == 'awslogs':
+                # If the container us using AWS logs, we can assemble a dict of container names -> logs.
+                url = 'https://console.aws.amazon.com/cloudwatch/home?region='
+                url += container['logConfiguration']['options']['awslogs-region']
+                url += '#logEventViewer:group='
+                url += container['logConfiguration']['options']['awslogs-group']
+                url += ';stream='
+                url += container['logConfiguration']['options']['awslogs-stream-prefix']
+                url += '/'
+                url += container['name']
+                url += '/'
+                url += task_uuid
+                containers[ container['name'] ] = url
+
+        return containers
+
+    return False

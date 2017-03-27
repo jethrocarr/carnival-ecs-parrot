@@ -23,6 +23,7 @@ provider:
         - "ecs:ListServices"
         - "ecs:DescribeServices"
         - "ecs:DescribeTasks"
+        - "ecs:DescribeTaskDefinition"
       Resource: "*"
 
   # Set environentals on the Lambda:

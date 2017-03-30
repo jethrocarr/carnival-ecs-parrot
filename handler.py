@@ -91,6 +91,20 @@ def parrot(event, context):
                 for name, logurl in containers.iteritems():
                     message += '<'+ logurl +'|'+ name +'> '
 
+    if (event['detail']['eventName'] == 'RegisterContainerInstance'):
+        # An underlying EC2 instance has started and joined the cluster. Note
+        # that this can also include a restarting instance or upgraded agent.
+
+        cluster        = event['detail']['requestParameters']['cluster']
+        instance_id    = event['detail']['responseElements']['containerInstance']['ec2InstanceId']
+        instance_uuid  = event['detail']['requestParameters']['containerInstanceArn'].split('/')[1]
+        version_docker = event['detail']['responseElements']['containerInstance']['versionInfo']['dockerVersion'].split(' ')[1]
+        version_agent  = event['detail']['responseElements']['containerInstance']['versionInfo']['agentVersion']
+
+        instance_link  = 'https://console.aws.amazon.com/ecs/home?region=' + os.environ['AWS_DEFAULT_REGION'] +'#/clusters/'+ cluster +'/containerInstances/' + instance_uuid
+
+        message        = cluster +" member <"+ instance_link +"|"+ instance_id +"> started ECS agent "+ version_agent +" with Docker "+ version_docker
+
     else:
         # We haven't coded a handler for this event type.
         message = "A " + event['detail']['eventName'] + " event occured."

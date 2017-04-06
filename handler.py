@@ -91,7 +91,7 @@ def parrot(event, context):
                 for name, logurl in containers.iteritems():
                     message += '<'+ logurl +'|'+ name +'> '
 
-    if (event['detail']['eventName'] == 'RegisterContainerInstance'):
+    elif (event['detail']['eventName'] == 'RegisterContainerInstance'):
         # An underlying EC2 instance has started and joined the cluster. Note
         # that this can also include a restarting instance or upgraded agent.
 

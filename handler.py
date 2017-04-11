@@ -33,6 +33,7 @@ def parrot(event, context):
     print json.dumps(event);
 
     message = ''
+    ignore_quiet = false
 
     if (event['detail']['eventName'] == 'StopTask'):
         # A task has been terminated via the ECS API either by a human on the
@@ -41,6 +42,9 @@ def parrot(event, context):
         service_name = event['detail']['responseElements']['task']['group'].rsplit(':', 1)[1]
         reason = event['detail']['responseElements']['task']['stoppedReason']
         message += " "+ service_name +" stopped due to "+ reason
+
+        # As these are somewhat unusual events for us, break quiet.
+        ignore_quiet = true
 
     elif (event['detail']['eventName'] == 'SubmitTaskStateChange'):
         # A container has changed state - typically RUNNING->STOPPED or
@@ -79,6 +83,11 @@ def parrot(event, context):
                 uptime_delta = task_details['stoppedAt'] - task_details['startedAt']
                 message += ' (Ran for '+ str(int(uptime_delta.total_seconds())/60) +' minutes)'
 
+                # We want to catch any services stuck in reboots (eg unable to
+                # start up successfully)
+                if (uptime_delta.total_seconds() <= 300):
+                    ignore_quiet = true
+
         # Provide a link to the logs for each container inside the task for
         # handy debugging and following. Particularly useful for stopped tasks
         # but can also be useful for newly launched tasks
@@ -105,12 +114,24 @@ def parrot(event, context):
 
         message        = cluster +" member <"+ instance_link +"|"+ instance_id +"> started ECS agent "+ version_agent +" with Docker "+ version_docker
 
+        # ECS machine replacements are not overly common, so we should ignore
+        # quiet - however we may change this in future when we roll autoscaling.
+        ignore_quiet = true
+
     else:
         # We haven't coded a handler for this event type.
         message = "A " + event['detail']['eventName'] + " event occured."
 
+    if os.environ['SLACK_QUIET'] == "true":
+        # Quiet mode enabled, only post if we've flagged this event as such.
+        if ignore_quiet == true:
+            slackmessage(message)
+    else :
+        slackmessage(message)
 
-    slackmessage(message)
+
+    # Keep a copy of the messages in CloudWatch
+    print "ECS Event: "+ message
 
     return True
 

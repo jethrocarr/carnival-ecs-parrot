@@ -106,7 +106,7 @@ def parrot(event, context):
 
         cluster        = event['detail']['requestParameters']['cluster']
         instance_id    = event['detail']['responseElements']['containerInstance']['ec2InstanceId']
-        instance_uuid  = event['detail']['requestParameters']['containerInstanceArn'].split('/')[1]
+        instance_uuid  = event['detail']['responseElements']['containerInstance']['containerInstanceArn'].split('/')[1]
         version_docker = event['detail']['responseElements']['containerInstance']['versionInfo']['dockerVersion'].split(' ')[1]
         version_agent  = event['detail']['responseElements']['containerInstance']['versionInfo']['agentVersion']
 

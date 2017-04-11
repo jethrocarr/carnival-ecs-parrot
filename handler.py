@@ -33,7 +33,7 @@ def parrot(event, context):
     print json.dumps(event);
 
     message = ''
-    ignore_quiet = false
+    ignore_quiet = False
 
     if (event['detail']['eventName'] == 'StopTask'):
         # A task has been terminated via the ECS API either by a human on the
@@ -44,7 +44,7 @@ def parrot(event, context):
         message += " "+ service_name +" stopped due to "+ reason
 
         # As these are somewhat unusual events for us, break quiet.
-        ignore_quiet = true
+        ignore_quiet = True
 
     elif (event['detail']['eventName'] == 'SubmitTaskStateChange'):
         # A container has changed state - typically RUNNING->STOPPED or
@@ -86,7 +86,7 @@ def parrot(event, context):
                 # We want to catch any services stuck in reboots (eg unable to
                 # start up successfully)
                 if (uptime_delta.total_seconds() <= 300):
-                    ignore_quiet = true
+                    ignore_quiet = True
 
         # Provide a link to the logs for each container inside the task for
         # handy debugging and following. Particularly useful for stopped tasks
@@ -116,7 +116,7 @@ def parrot(event, context):
 
         # ECS machine replacements are not overly common, so we should ignore
         # quiet - however we may change this in future when we roll autoscaling.
-        ignore_quiet = true
+        ignore_quiet = True
 
     else:
         # We haven't coded a handler for this event type.
@@ -124,7 +124,7 @@ def parrot(event, context):
 
     if os.environ['SLACK_QUIET'] == "true":
         # Quiet mode enabled, only post if we've flagged this event as such.
-        if ignore_quiet == true:
+        if ignore_quiet == True:
             slackmessage(message)
     else :
         slackmessage(message)

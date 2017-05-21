@@ -33,6 +33,10 @@ provider:
     SLACK_CHANNEL: ${file(serverless.env.yml):mysettings.slack.channel}
     SLACK_ICON_EMOJI: ${file(serverless.env.yml):mysettings.slack.icon_emoji}
     SLACK_QUIET: ${file(serverless.env.yml):mysettings.slack.quiet}
+    FLOWDOCK_API_TOKEN: ${file(serverless.env.yml):mysettings.flowdock.api_token}
+    FLOWDOCK_USERNAME: ${file(serverless.env.yml):mysettings.flowdock.username}
+    FLOWDOCK_ICON_EMOJI: ${file(serverless.env.yml):mysettings.flowdock.icon_emoji}
+    FLOWDOCK_QUIET: ${file(serverless.env.yml):mysettings.flowdock.quiet}
 
 # you can define service wide environment variables here
 #  environment:

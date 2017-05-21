@@ -1,7 +1,7 @@
 # carnival-ecs-parrot
 
 ECS Parrot is a Lambda that subscribes to interesting ECS events and posts
-the useful/interesting ones to Slack.
+the useful/interesting ones to Slack or Flowdock.
 
 
 # Deployment

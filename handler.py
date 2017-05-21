@@ -24,6 +24,8 @@ here = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(here, "vendored/"))
 
 import requests
+from flowdock import Chat
+import re
 
 
 # PutImage is triggered by ECS API events.
@@ -122,13 +124,22 @@ def parrot(event, context):
         # We haven't coded a handler for this event type.
         message = "A " + event['detail']['eventName'] + " event occured."
 
-    if os.environ['SLACK_QUIET'] == "true":
-        # Quiet mode enabled, only post if we've flagged this event as such.
-        if ignore_quiet == True:
+    if os.environ['SLACK_WEBHOOKURL'] and os.environ['SLACK_WEBHOOKURL'] != 'DISABLED':
+        if os.environ['SLACK_QUIET'] == "true":
+            # Quiet mode enabled, only post if we've flagged this event as such.
+            if ignore_quiet == True:
+                slackmessage(message)
+        else :
             slackmessage(message)
-    else :
-        slackmessage(message)
-
+    elif os.environ['FLOWDOCK_API_TOKEN'] and os.environ['FLOWDOCK_API_TOKEN'] != 'DISABLED':
+        if os.environ['FLOWDOCK_QUIET'] == "true":
+            # Quiet mode enabled, only post if we've flagged this event as such.
+            if ignore_quiet == True:
+                flowdockmessage(message)
+        else :
+            flowdockmessage(message)
+    else:
+        print "No message service defined!"
 
     # Keep a copy of the messages in CloudWatch
     print "ECS Event: "+ message
@@ -157,6 +168,18 @@ def slackmessage(text):
     else:
         print "Unexpected error logging to Slack. Return code: "+ str(myrequest.status_code)
 
+# Post notification to flowdock.
+def flowdockmessage(text):
+
+    # adjust links from slack message to flowdock syntax
+    text = re.sub(r"<([^<]+)\|([^>]+)>", r"[\2](\1)", text)
+
+    chat = Chat(os.environ['FLOWDOCK_API_TOKEN'])
+    try:
+        chat.post(text, os.environ['FLOWDOCK_USERNAME'])
+        print "Flowdock Message: " + text
+    except Exception as e:
+        print "Unexpected error logging to Flowdock: " + str(e)
 
 # Return the details of a specific task on a specific cluster
 def describe_task(ecs_cluster_name, task_arn):

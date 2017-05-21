@@ -1,0 +1,21 @@
+Metadata-Version: 1.1
+Name: pyflowdock
+Version: 0.3.35
+Summary: Simple Flowdock APIs wrapper with some useful helpers. Only Push API (Team Inbox and Chat) and Streaming API available at this moment.
+Home-page: https://github.com/Aeron/PyFlowdock
+Author: Eugene “Aeron” Glybin
+Author-email: aeron@aeron.cc
+License: LGPLv3
+Description: UNKNOWN
+Keywords: flowdock api wrapper
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+Classifier: Topic :: Communications
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy

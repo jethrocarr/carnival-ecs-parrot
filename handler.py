@@ -25,6 +25,7 @@ sys.path.append(os.path.join(here, "vendored/"))
 
 import requests
 from flowdock import Chat
+import re
 
 
 # PutImage is triggered by ECS API events.
@@ -169,6 +170,9 @@ def slackmessage(text):
 
 # Post notification to flowdock.
 def flowdockmessage(text):
+
+    # adjust links from slack message to flowdock syntax
+    text = re.sub(r"<([^<]+)\|([^>]+)>", r"[\2](\1)", text)
 
     chat = Chat(os.environ['FLOWDOCK_API_TOKEN'])
     try:

@@ -90,6 +90,13 @@ def parrot(event, context):
                 if (uptime_delta.total_seconds() <= 300):
                     ignore_quiet = True
 
+                for container in task_details['containers']:
+                    if 'reason' in container and container['reason'].find('OutOfMemoryError') == 0:
+                        # If a container has a stopped reason beginning with
+                        # OutOfMemoryError, then we should know about it,
+                        # regardless of how long the task had been running for.
+                        ignore_quiet = True
+
         # Provide a link to the logs for each container inside the task for
         # handy debugging and following. Particularly useful for stopped tasks
         # but can also be useful for newly launched tasks

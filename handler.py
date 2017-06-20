@@ -118,12 +118,15 @@ def parrot(event, context):
         cluster        = event['detail']['requestParameters']['cluster']
         instance_id    = event['detail']['responseElements']['containerInstance']['ec2InstanceId']
         instance_uuid  = event['detail']['responseElements']['containerInstance']['containerInstanceArn'].split('/')[1]
-        version_docker = event['detail']['responseElements']['containerInstance']['versionInfo']['dockerVersion'].split(' ')[1]
-        version_agent  = event['detail']['responseElements']['containerInstance']['versionInfo']['agentVersion']
 
         instance_link  = 'https://console.aws.amazon.com/ecs/home?region=' + os.environ['AWS_DEFAULT_REGION'] +'#/clusters/'+ cluster +'/containerInstances/' + instance_uuid
+        message        = cluster +" member <"+ instance_link +"|"+ instance_id +"> started"
 
-        message        = cluster +" member <"+ instance_link +"|"+ instance_id +"> started ECS agent "+ version_agent +" with Docker "+ version_docker
+        if len(event['detail']['responseElements']['containerInstance']['versionInfo']) > 0:
+            version_docker = event['detail']['responseElements']['containerInstance']['versionInfo']['dockerVersion'].split(' ')[1]
+            version_agent  = event['detail']['responseElements']['containerInstance']['versionInfo']['agentVersion']
+
+            message += " ECS agent "+ version_agent +" with Docker "+ version_docker
 
         # ECS machine replacements are not overly common, so we should ignore
         # quiet - however we may change this in future when we roll autoscaling.

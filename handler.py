@@ -82,13 +82,15 @@ def parrot(event, context):
         # flappy systems.
         if event['detail']['requestParameters']['status'] == "STOPPED":
             if task_details:
-                uptime_delta = task_details['stoppedAt'] - task_details['startedAt']
-                message += ' (Ran for '+ str(int(uptime_delta.total_seconds())/60) +' minutes)'
+                # startedAt may not be in task_details if the task never started
+                if 'startedAt' in task_details:
+                    uptime_delta = task_details['stoppedAt'] - task_details['startedAt']
+                    message += ' (Ran for '+ str(int(uptime_delta.total_seconds())/60) +' minutes)'
 
-                # We want to catch any services stuck in reboots (eg unable to
-                # start up successfully)
-                if (uptime_delta.total_seconds() <= 300):
-                    ignore_quiet = True
+                    # We want to catch any services stuck in reboots (eg unable to
+                    # start up successfully)
+                    if (uptime_delta.total_seconds() <= 300):
+                        ignore_quiet = True
 
                 for container in task_details['containers']:
                     if 'reason' in container and container['reason'].find('OutOfMemoryError') == 0:

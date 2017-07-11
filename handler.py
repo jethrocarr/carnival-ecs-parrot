@@ -82,13 +82,22 @@ def parrot(event, context):
         # flappy systems.
         if event['detail']['requestParameters']['status'] == "STOPPED":
             if task_details:
-                uptime_delta = task_details['stoppedAt'] - task_details['startedAt']
-                message += ' (Ran for '+ str(int(uptime_delta.total_seconds())/60) +' minutes)'
+                # startedAt may not be in task_details if the task never started
+                if 'startedAt' in task_details:
+                    uptime_delta = task_details['stoppedAt'] - task_details['startedAt']
+                    message += ' (Ran for '+ str(int(uptime_delta.total_seconds())/60) +' minutes)'
 
-                # We want to catch any services stuck in reboots (eg unable to
-                # start up successfully)
-                if (uptime_delta.total_seconds() <= 300):
-                    ignore_quiet = True
+                    # We want to catch any services stuck in reboots (eg unable to
+                    # start up successfully)
+                    if (uptime_delta.total_seconds() <= 300):
+                        ignore_quiet = True
+
+                for container in task_details['containers']:
+                    if 'reason' in container and container['reason'].find('OutOfMemoryError') == 0:
+                        # If a container has a stopped reason beginning with
+                        # OutOfMemoryError, then we should know about it,
+                        # regardless of how long the task had been running for.
+                        ignore_quiet = True
 
         # Provide a link to the logs for each container inside the task for
         # handy debugging and following. Particularly useful for stopped tasks
@@ -109,12 +118,15 @@ def parrot(event, context):
         cluster        = event['detail']['requestParameters']['cluster']
         instance_id    = event['detail']['responseElements']['containerInstance']['ec2InstanceId']
         instance_uuid  = event['detail']['responseElements']['containerInstance']['containerInstanceArn'].split('/')[1]
-        version_docker = event['detail']['responseElements']['containerInstance']['versionInfo']['dockerVersion'].split(' ')[1]
-        version_agent  = event['detail']['responseElements']['containerInstance']['versionInfo']['agentVersion']
 
         instance_link  = 'https://console.aws.amazon.com/ecs/home?region=' + os.environ['AWS_DEFAULT_REGION'] +'#/clusters/'+ cluster +'/containerInstances/' + instance_uuid
+        message        = cluster +" member <"+ instance_link +"|"+ instance_id +"> started"
 
-        message        = cluster +" member <"+ instance_link +"|"+ instance_id +"> started ECS agent "+ version_agent +" with Docker "+ version_docker
+        if len(event['detail']['responseElements']['containerInstance']['versionInfo']) > 0:
+            version_docker = event['detail']['responseElements']['containerInstance']['versionInfo']['dockerVersion'].split(' ')[1]
+            version_agent  = event['detail']['responseElements']['containerInstance']['versionInfo']['agentVersion']
+
+            message += " ECS agent "+ version_agent +" with Docker "+ version_docker
 
         # ECS machine replacements are not overly common, so we should ignore
         # quiet - however we may change this in future when we roll autoscaling.

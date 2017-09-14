@@ -221,8 +221,7 @@ def link_container_logs(task_definition_arn, task_uuid):
         containers = {}
 
         for container in response['taskDefinition']['containerDefinitions']:
-
-            if container['logConfiguration']['logDriver'] == 'awslogs':
+            if container['logConfiguration']['logDriver'] and container['logConfiguration']['logDriver'] == 'awslogs':
                 # If the container us using AWS logs, we can assemble a dict of container names -> logs.
                 url = 'https://console.aws.amazon.com/cloudwatch/home?region='
                 url += container['logConfiguration']['options']['awslogs-region']

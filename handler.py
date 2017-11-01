@@ -128,10 +128,6 @@ def parrot(event, context):
 
             message += " ECS agent "+ version_agent +" with Docker "+ version_docker
 
-        # ECS machine replacements are not overly common, so we should ignore
-        # quiet - however we may change this in future when we roll autoscaling.
-        ignore_quiet = True
-
     else:
         # We haven't coded a handler for this event type.
         message = "A " + event['detail']['eventName'] + " event occured."
@@ -221,8 +217,7 @@ def link_container_logs(task_definition_arn, task_uuid):
         containers = {}
 
         for container in response['taskDefinition']['containerDefinitions']:
-
-            if container['logConfiguration']['logDriver'] == 'awslogs':
+            if container['logConfiguration']['logDriver'] and container['logConfiguration']['logDriver'] == 'awslogs':
                 # If the container us using AWS logs, we can assemble a dict of container names -> logs.
                 url = 'https://console.aws.amazon.com/cloudwatch/home?region='
                 url += container['logConfiguration']['options']['awslogs-region']

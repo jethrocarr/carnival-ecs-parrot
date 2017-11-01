@@ -128,10 +128,6 @@ def parrot(event, context):
 
             message += " ECS agent "+ version_agent +" with Docker "+ version_docker
 
-        # ECS machine replacements are not overly common, so we should ignore
-        # quiet - however we may change this in future when we roll autoscaling.
-        ignore_quiet = True
-
     else:
         # We haven't coded a handler for this event type.
         message = "A " + event['detail']['eventName'] + " event occured."

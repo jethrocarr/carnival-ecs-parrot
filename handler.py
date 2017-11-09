@@ -102,7 +102,22 @@ def parrot(event, context):
                         # If a container has a stopped reason beginning with
                         # OutOfMemoryError, then we should know about it,
                         # regardless of how long the task had been running for.
+                        message += ' (OutOfMemoryError)'
                         ignore_quiet = True
+
+                # Advise if the instance is stopping due to draining/stoppage of
+                # the underlying EC2 instance and treat as a quiet event regardless
+                # of the earlier logic matches.
+                if 'containerInstanceArn' in task_details:
+                    instance_details = describe_container_instances(cluster_name, task_details['containerInstanceArn'])
+
+                    if instance_details:
+                        if instance_details["status"] == "INACTIVE":
+                            message += ' (EC2 instance terminated)'
+                            ignore_quiet = False
+                        if instance_details["status"] == "DRAINING":
+                            message += ' (EC2 instance draining)'
+                            ignore_quiet = False
 
         # Provide a link to the logs for each container inside the task for
         # handy debugging and following. Particularly useful for stopped tasks
@@ -209,6 +224,21 @@ def describe_task(ecs_cluster_name, task_arn):
     else:
         return response['tasks'][0]
 
+
+# Return the details of a specific container instance (EC2 instance)
+def describe_container_instances(ecs_cluster_name, instance_arn):
+
+    client = boto3.client('ecs')
+    response = client.describe_container_instances(
+        cluster=ecs_cluster_name,
+        containerInstances=[ instance_arn ]
+    )
+
+    if response['failures']:
+        print "Unexpected error obtaining EC2 instance details"
+        return False
+    else:
+        return response['containerInstances'][0]
 
 # Return a dict of containers and logs inside a given task.
 def link_container_logs(task_definition_arn, task_uuid):

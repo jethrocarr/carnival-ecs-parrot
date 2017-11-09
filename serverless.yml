@@ -24,6 +24,7 @@ provider:
         - "ecs:DescribeServices"
         - "ecs:DescribeTasks"
         - "ecs:DescribeTaskDefinition"
+        - "ecs:DescribeContainerInstances"
       Resource: "*"
 
   # Set environentals on the Lambda:

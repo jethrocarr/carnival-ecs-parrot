@@ -37,6 +37,11 @@ def parrot(event, context):
     message = ''
     ignore_quiet = False
 
+    if 'errorCode' in event['detail']:
+        if event['detail']['errorCode'] == 'InternalFailure':
+            print "Cloudwatch has given us an internal error, nothing we want to do with these. Ignoring."
+            return True
+
     if (event['detail']['eventName'] == 'StopTask'):
         # A task has been terminated via the ECS API either by a human on the
         # console or a utility/tool of some kind.

@@ -94,7 +94,7 @@ def parrot(event, context):
 
                     # We want to catch any services stuck in reboots (eg unable to
                     # start up successfully)
-                    if (uptime_delta.total_seconds() <= 300):
+                    if (uptime_delta.total_seconds() <= 60):
                         ignore_quiet = True
 
                 for container in task_details['containers']:

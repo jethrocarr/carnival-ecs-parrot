@@ -92,11 +92,6 @@ def parrot(event, context):
                     uptime_delta = task_details['stoppedAt'] - task_details['startedAt']
                     message += ' (Ran for '+ str(int(uptime_delta.total_seconds())/60) +' minutes)'
 
-                    # We want to catch any services stuck in reboots (eg unable to
-                    # start up successfully)
-                    if (uptime_delta.total_seconds() <= 60):
-                        ignore_quiet = True
-
                 for container in task_details['containers']:
                     if 'reason' in container and container['reason'].find('OutOfMemoryError') == 0:
                         # If a container has a stopped reason beginning with

@@ -91,8 +91,8 @@ def parrot(event, context):
                 if 'startedAt' in task_details:
                     uptime_delta = task_details['stoppedAt'] - task_details['startedAt']
                     message += ' (Ran for '+ str(int(uptime_delta.total_seconds())/60) +' minutes)'
-                    # We want to know if the exit code for the application.
-
+                
+                # We want to know the exit code for the application.
                 for container in event['detail']['requestParameters']['containers']:
                     if container['exitCode'] != 0:
                         message += ' ( Container : ' + container['containerName'] + ' - ExitCode: ' + str(container['exitCode']) + ' )'

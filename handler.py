@@ -95,8 +95,12 @@ def parrot(event, context):
                 # We want to know the exit code for the application.
                 for container in event['detail']['requestParameters']['containers']:
                     if container['exitCode'] != 0:
-                        message += ' ( Container : ' + container['containerName'] + ' - ExitCode: ' + str(container['exitCode']) + ' )'
-                        ignore_quiet = True
+			if container['containerName'] == 'mongo-router':
+				# Mongo Router likes to die with non-zero exit code when it is terminated
+				ignore_quiet = False
+			else:
+	                        message += ' ( Container : ' + container['containerName'] + ' - ExitCode: ' + str(container['exitCode']) + ' )'
+        	                ignore_quiet = True
                     else:
                         # We don't care if everything exits with 0
                         ignore_quiet = False

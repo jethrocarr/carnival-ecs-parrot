@@ -97,7 +97,7 @@ def parrot(event, context):
                     if container['exitCode'] != 0:
                         message += ' ( Container : ' + container['containerName'] + ' - ExitCode: ' + str(container['exitCode']) + ' )'
                         ignore_quiet = True
-                    else
+                    else:
                         # We don't care if everything exits with 0
                         ignore_quiet = False
 

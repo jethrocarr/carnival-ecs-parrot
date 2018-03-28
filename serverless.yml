@@ -38,6 +38,7 @@ provider:
     FLOWDOCK_USERNAME: ${file(serverless.env.yml):mysettings.flowdock.username}
     FLOWDOCK_ICON_EMOJI: ${file(serverless.env.yml):mysettings.flowdock.icon_emoji}
     FLOWDOCK_QUIET: ${file(serverless.env.yml):mysettings.flowdock.quiet}
+    IGNORED_EXIT_CODE_CONTAINER_NAMES: ${file(serverless.env.yml):mysettings.ignored.exit_code.container_names}
 
 # you can define service wide environment variables here
 #  environment:

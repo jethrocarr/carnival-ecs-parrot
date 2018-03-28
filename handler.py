@@ -91,6 +91,19 @@ def parrot(event, context):
                 if 'startedAt' in task_details:
                     uptime_delta = task_details['stoppedAt'] - task_details['startedAt']
                     message += ' (Ran for '+ str(int(uptime_delta.total_seconds())/60) +' minutes)'
+                
+                # We want to know the exit code for the application.
+                for container in event['detail']['requestParameters']['containers']:
+                    if container['exitCode'] != 0:
+			if container['containerName'] == 'mongo-router':
+				# Mongo Router likes to die with non-zero exit code when it is terminated
+				ignore_quiet = False
+			else:
+	                        message += ' ( Container : ' + container['containerName'] + ' - ExitCode: ' + str(container['exitCode']) + ' )'
+        	                ignore_quiet = True
+                    else:
+                        # We don't care if everything exits with 0
+                        ignore_quiet = False
 
                 for container in task_details['containers']:
                     if 'reason' in container and container['reason'].find('OutOfMemoryError') == 0:

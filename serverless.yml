@@ -61,3 +61,26 @@ functions:
     handler: handler.parrot
     memorySize: 128 # MB
     timeout: 15 # Seconds
+    events:
+      - cloudwatchEvent:
+          event:
+            source:
+              - "aws.ecs"
+            detail-type:
+              - "AWS API Call via CloudTrail"
+            detail:
+              eventSource:
+                - "ecs.amazonaws.com"
+              eventName:
+                - SubmitContainerStateChange
+                - SubmitTaskStateChange
+                - SubmitContainerStateChange
+                - UpdateService
+                - RegisterTaskDefinition
+                - StartTask
+                - StopTask
+                - RunTask
+                - DeregisterContainerInstance
+                - RegisterContainerInstance
+              state:
+                - "ENABLED"

@@ -19,26 +19,6 @@ To deploy or update the Lambda:
 The `serverless deploy` command will advise what endpoint is created in API
 gateway, or you can request it at any time with serverless info.
 
-Additionally, we need to associate a cloudwatch event to the Lambda. This is
-currently not configurable via the Serverless framework itself. To do this:
-
-1. `AWS Console -> CloudWatch Dashboard`
-2. `Events -> Rules`
-3. Click `Create rule`
-4. Select `EC2 Container Service (ECS)` as the event service. Use
-   `AWS API Call via CloudTrail` and specific operations
-   `SubmitTaskStateChange`, `StartTask`, `StopTask`, `RunTask`,
-   `DeregisterContainerInstance` and `RegisterContainerInstance`.
-5. Click `Add target`
-6. Select the Lambda to validate against.
-7. Keep all other details.
-8. Click `Configure details` when done.
-
-TODO: We could probably script the above, but best solution is doing for some
-form of native integration into Serverless framework. It might be possible to
-use custom CFN resources to do this.
-
-
 # Developer Notes
 
 Python dependencies are installed to the local `vendored/` directory and then

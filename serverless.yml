@@ -82,5 +82,3 @@ functions:
                 - RunTask
                 - DeregisterContainerInstance
                 - RegisterContainerInstance
-              state:
-                - "ENABLED"

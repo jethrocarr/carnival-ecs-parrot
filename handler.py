@@ -95,12 +95,12 @@ def parrot(event, context):
                 # We want to know the exit code for the application.
                 for container in event['detail']['requestParameters']['containers']:
                     if container['exitCode'] != 0:
-			exit_code_ignore_list = os.environ.get("IGNORED_EXIT_CODE_CONTAINER_NAMES").split("::")]
-			if container['containerName'] in exit_code_ignore_list:
-				ignore_quiet = False
-			else:
-	                        message += ' ( Container : ' + container['containerName'] + ' - ExitCode: ' + str(container['exitCode']) + ' )'
-        	                ignore_quiet = True
+                        exit_code_ignore_list = os.environ.get("IGNORED_EXIT_CODE_CONTAINER_NAMES").split("::")]
+                        if container['containerName'] in exit_code_ignore_list:
+                            ignore_quiet = False
+                        else:
+                            message += ' ( Container : ' + container['containerName'] + ' - ExitCode: ' + str(container['exitCode']) + ' )'
+                            ignore_quiet = True
                     else:
                         # We don't care if everything exits with 0
                         ignore_quiet = False

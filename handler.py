@@ -96,14 +96,9 @@ def parrot(event, context):
                 for container in event['detail']['requestParameters']['containers']:
                     if container['exitCode'] != 0:
                         exit_code_ignore_list = os.environ.get("IGNORED_EXIT_CODE_CONTAINER_NAMES").split("::")
-                        if container['containerName'] in exit_code_ignore_list:
-                            ignore_quiet = False
-                        else:
+                        if container['containerName'] not in exit_code_ignore_list:
                             message += ' ( Container : ' + container['containerName'] + ' - ExitCode: ' + str(container['exitCode']) + ' )'
                             ignore_quiet = True
-                    else:
-                        # We don't care if everything exits with 0
-                        ignore_quiet = False
 
                 for container in task_details['containers']:
                     if 'reason' in container and container['reason'].find('OutOfMemoryError') == 0:
